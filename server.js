@@ -26,7 +26,9 @@ server.get("/api/users/:id", (req, res) => {
   if (user) {
     res.json(user);
   } else {
-    res.status(400).json({ errorMessage: "User not found" });
+    res
+      .status(400)
+      .json({ msg: "The user with the specified ID does not exist." });
   }
 });
 
@@ -43,6 +45,36 @@ server.post("/api/users/", (req, res) => {
     return res.status(400).json({ errorMessage: "User needs a bio" });
   } else {
     res.status(201).json(newUser);
+  }
+});
+
+// DELETE Requests
+server.delete("/users/:id", (req, res) => {
+  const user = db.getUserById(req.params.id);
+
+  if (user) {
+    db.deleteUser(user.id);
+    res.status(204).end();
+  } else {
+    res.status(404).json({
+      msg: "The user with the specified ID does not exist.",
+    });
+  }
+});
+
+server.put("/users/:id", (req, res) => {
+  const user = db.getUserById(req.params.id);
+
+  if (user) {
+    const updatedUser = db.updateUser(user.id, {
+      name: req.body.name || user.name,
+    });
+
+    res.json(updatedUser);
+  } else {
+    res.status(404).json({
+      msg: "The user with the specified ID does not exist.",
+    });
   }
 });
 
