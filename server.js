@@ -7,7 +7,13 @@ const PORT = 5000;
 const server = express();
 
 server.get("/", (req, res) => {
-  res.json({ msg: "Hello from server.js" });
+  res.json({ msg: "Welcome to NODE API PROJECT" });
+});
+
+server.get("/users", (req, res) => {
+  const users = db.getUsers();
+
+  res.json(users);
 });
 
 server.listen(PORT, () => {
