@@ -1,8 +1,9 @@
 const express = require("express");
+const fs = require("fs");
 const db = require("./database");
 
 const hostName = "21.0.0.1";
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
 const server = express();
 
@@ -49,7 +50,7 @@ server.post("/api/users/", (req, res) => {
 });
 
 // DELETE Requests
-server.delete("/users/:id", (req, res) => {
+server.delete("/api/users/:id", (req, res) => {
   const user = db.getUserById(req.params.id);
 
   if (user) {
@@ -62,19 +63,31 @@ server.delete("/users/:id", (req, res) => {
   }
 });
 
-server.put("/users/:id", (req, res) => {
+// PUT Requests
+server.put("/api/users/:id", (req, res) => {
   const user = db.getUserById(req.params.id);
 
-  if (user) {
-    const updatedUser = db.updateUser(user.id, {
-      name: req.body.name || user.name,
-    });
-
-    res.json(updatedUser);
+  if (!user.name) {
+    return res
+      .status(400)
+      .json({ errorMessage: "Please provide name for the user." });
+  } else if (!user.bio) {
+    return res
+      .status(400)
+      .json({ errorMessage: "Please provide bio for the user." });
   } else {
-    res.status(404).json({
-      msg: "The user with the specified ID does not exist.",
-    });
+    if (user) {
+      const updatedUser = db.updateUser(user.id, {
+        name: req.body.name || user.name,
+        bio: req.body.bio || user.bio,
+      });
+
+      res.json(updatedUser);
+    } else {
+      res.status(404).json({
+        msg: "The user with the specified ID does not exist.",
+      });
+    }
   }
 });
 
